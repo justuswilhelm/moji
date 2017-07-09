@@ -4,23 +4,8 @@ Literate Programming Tool using Pandoc filters. The implementation is in
 Python 3 using the [pandocfilters](https://github.com/jgm/pandocfilters)
 package.
 
-## Files
-
-First, we'll tell Moji which files to initialize.
-
-[ ] TODO: Since we add append content to files, we can leave this out in the
-future and use a defaultdict.
-
-If you want to see what's happening under the hood, the markdown contains extra
-classes and key-value pairs for code blocks.
-
 [ ] TODO: Add a second pandoc filter that makes code block parameters visible
 in the PDF.
-
-```files
-Makefile
-moji.py
-```
 
 ## Prelude
 
@@ -28,6 +13,7 @@ Just some standard Python imports.
 
 ```{file=moji.py}
 #!/usr/bin/env python3
+from collections import defaultdict
 from pandocfilters import walk
 from sys import stdin
 import json
@@ -40,8 +26,8 @@ I like to use logging a lot for debugging purposes, so I'm setting up a logger
 here.
 
 ```{file=moji.py}
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 ```
 
 ## Some global vars
@@ -53,7 +39,7 @@ code blocks that we have created so far.
 
 ```{file=moji.py}
 code_block = 1
-files = {}
+files = defaultdict(list)
 fragments = {}
 ```
 
@@ -72,19 +58,14 @@ def action(key, value, format, meta):
 
     ((_, classes, keyvals), code) = value
     keyvals = dict(keyvals)
-    if 'files' in classes:
-        for path in code.splitlines():
-            logger.debug("Seen file %s", path)
-            files[path] = []
-    else:
-        if 'file' in keyvals:
-            path = keyvals['file']
-            logger.debug("Appending to %s", path)
-            files[path].append(code)
-        elif 'fragment' in keyvals:
-            fragment = keyvals['fragment']
-            logger.debug("Adding fragment %s")
-            fragments[fragment] = code
+    if 'file' in keyvals:
+        path = keyvals['file']
+        logger.debug("Appending to %s", path)
+        files[path].append(code)
+    elif 'fragment' in keyvals:
+        fragment = keyvals['fragment']
+        logger.debug("Adding fragment %s")
+        fragments[fragment] = code
 ```
 
 ## Fragment Replacement

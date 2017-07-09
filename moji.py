@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
+from collections import defaultdict
 from pandocfilters import walk
 from sys import stdin
 import json
 import logging
 
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 code_block = 1
-files = {}
+files = defaultdict(list)
 fragments = {}
 
 
@@ -24,19 +25,14 @@ def action(key, value, format, meta):
 
     ((_, classes, keyvals), code) = value
     keyvals = dict(keyvals)
-    if 'files' in classes:
-        for path in code.splitlines():
-            logger.debug("Seen file %s", path)
-            files[path] = []
-    else:
-        if 'file' in keyvals:
-            path = keyvals['file']
-            logger.debug("Appending to %s", path)
-            files[path].append(code)
-        elif 'fragment' in keyvals:
-            fragment = keyvals['fragment']
-            logger.debug("Adding fragment %s")
-            fragments[fragment] = code
+    if 'file' in keyvals:
+        path = keyvals['file']
+        logger.debug("Appending to %s", path)
+        files[path].append(code)
+    elif 'fragment' in keyvals:
+        fragment = keyvals['fragment']
+        logger.debug("Adding fragment %s")
+        fragments[fragment] = code
 
 
 def replace_fragments(block):
