@@ -4,6 +4,10 @@ from pandocfilters import walk
 from sys import stdin
 import json
 import logging
+import re
+
+
+FRAGMENT_RE = re.compile(r"(?P<indentation>\s*)##(?P<fragment_name>\w+)")
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -35,15 +39,23 @@ def action(key, value, format, meta):
         fragments[fragment] = code
 
 
+def indent_fragment(fragment, indent):
+    """Return the fragment with each line prepended by 'indent'."""
+    for line in fragment.splitlines():
+        yield "{}{}".format(indent, line)
+
+
 def replace_fragments(block):
     """Replace a designated fragment with a stored fragment."""
     def _iter():
         for line in block.splitlines():
-            if line.startswith('##'):
-                fragment_name = line[2:]
-                logger.debug("Found fragment %s in %s", fragment_name, path)
+            match = FRAGMENT_RE.match(line)
+            if match:
+                fragment_name = match.group('fragment_name')
+                indentation = match.group('indentation')
+                logger.debug("Found 'fragment' %s in %s", fragment_name, path)
                 fragment = fragments[fragment_name]
-                yield fragment
+                yield from indent_fragment(fragment, indentation)
             else:
                 yield line
     return "\n".join(_iter())

@@ -15,6 +15,15 @@ from pandocfilters import walk
 from sys import stdin
 import json
 import logging
+import re
+```
+
+## Regular Expressions
+
+These are used to match Moji instructions
+
+```{file=moji.py}
+FRAGMENT_RE = re.compile(r"(?P<indentation>\s*)##(?P<fragment_name>\w+)")
 ```
 
 ## Set Up Logging
@@ -67,22 +76,48 @@ def action(key, value, format, meta):
 
 This is the algorithm that replaces occurences of
 
-```
-##fragment name
+```python
+##fragment_name
 ```
 
-with the correct fragment.
+with the correct fragment, like so
+
+```python
+print("Hello, World!")
+```
+
+
+Furthermore, great care is taken to match the indent
+level at the position that contained the fragment reference. Therefore, if
+
+```python
+    ##fragment_name
+```
+
+is defined, it will be replaced with a fragment like so
+
+```python
+    print("Hello, World!")
+```
 
 ```{file=moji.py}
+def indent_fragment(fragment, indent):
+    """Return the fragment with each line prepended by 'indent'."""
+    for line in fragment.splitlines():
+        yield "{}{}".format(indent, line)
+
+
 def replace_fragments(block):
     """Replace a designated fragment with a stored fragment."""
     def _iter():
         for line in block.splitlines():
-            if line.startswith('##'):
-                fragment_name = line[2:]
-                logger.debug("Found fragment %s in %s", fragment_name, path)
+            match = FRAGMENT_RE.match(line)
+            if match:
+                fragment_name = match.group('fragment_name')
+                indentation = match.group('indentation')
+                logger.debug("Found 'fragment' %s in %s", fragment_name, path)
                 fragment = fragments[fragment_name]
-                yield fragment
+                yield from indent_fragment(fragment, indentation)
             else:
                 yield line
     return "\n".join(_iter())
@@ -94,7 +129,7 @@ Here we parse, process and output the JSON.
 
 ```{file=moji.py}
 if __name__ == "__main__":
-##fragment
+    ##fragment
     tree = json.loads(stdin.read())
     walk(tree, action, '', {})
     for fragment, content in fragments.items():
@@ -114,7 +149,7 @@ Here we test fragment replacement. This will later show up in the `moji.py`
 file.
 
 ```{fragment=fragment}
-    print("This will appear inside the __main__ if block")
+print("This will appear inside the __main__ if block")
 ```
 
 
