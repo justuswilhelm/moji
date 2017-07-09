@@ -40,9 +40,16 @@ def action(key, value, format, meta):
 
 
 if __name__ == "__main__":
-    ##fragment
+##fragment
     tree = json.loads(stdin.read())
     walk(tree, action, '', {})
+    for fragment, content in fragments.items():
+        for path, content in files.items():
+            for block in content:
+                for line in block.splitlines():
+                    if line.startswith('##'):
+                        logger.debug("Found a fragment in %s", path)
+
     for path, content in files.items():
         with open(path, 'w') as fd:
             logger.debug("Finalizing file %s", path)
