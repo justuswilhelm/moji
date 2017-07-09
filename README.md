@@ -8,7 +8,7 @@ package.
 
 Just some standard Python imports.
 
-```{file=moji.py}
+```{.python file=moji.py}
 #!/usr/bin/env python3
 from collections import defaultdict
 from pandocfilters import walk
@@ -22,7 +22,7 @@ import re
 
 These are used to match Moji instructions
 
-```{file=moji.py}
+```{.python file=moji.py}
 FRAGMENT_RE = re.compile(r"(?P<indentation>\s*)##(?P<fragment_name>\w+)")
 ```
 
@@ -31,7 +31,7 @@ FRAGMENT_RE = re.compile(r"(?P<indentation>\s*)##(?P<fragment_name>\w+)")
 I like to use logging a lot for debugging purposes, so I'm setting up a logger
 here.
 
-```{file=moji.py}
+```{.python file=moji.py}
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 ```
@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 This is where we store files and fragments, and also a global count of all
 code blocks that we have created so far.
 
-```{file=moji.py}
+```{.python file=moji.py}
 code_block = 1
 files = defaultdict(list)
 fragments = {}
@@ -51,7 +51,7 @@ fragments = {}
 
 This is the main action for Pandoc AST traversal.
 
-```{file=moji.py}
+```{.python file=moji.py}
 def action(key, value, format, meta):
     """."""
     if key != 'CodeBlock':
@@ -100,7 +100,7 @@ is defined, it will be replaced with a fragment like so
     print("Hello, World!")
 ```
 
-```{file=moji.py}
+```{.python file=moji.py}
 def indent_fragment(fragment, indent):
     """Return the fragment with each line prepended by 'indent'."""
     for line in fragment.splitlines():
@@ -127,7 +127,7 @@ def replace_fragments(block):
 
 Here we parse, process and output the JSON.
 
-```{file=moji.py}
+```{.python file=moji.py}
 if __name__ == "__main__":
     ##fragment
     tree = json.loads(stdin.read())
@@ -148,7 +148,7 @@ if __name__ == "__main__":
 Here we test fragment replacement. This will later show up in the `moji.py`
 file.
 
-```{fragment=fragment}
+```{.python fragment=fragment}
 print("This will appear inside the __main__ if block")
 ```
 
@@ -157,7 +157,7 @@ print("This will appear inside the __main__ if block")
 
 Finally, a makefile shall be created.
 
-```{file=Makefile}
+```{.makefile file=Makefile}
 SOURCE = README.md
 TARGET = moji.py moji.pdf
 
