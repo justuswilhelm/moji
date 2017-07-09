@@ -4,9 +4,6 @@ Literate Programming Tool using Pandoc filters. The implementation is in
 Python 3 using the [pandocfilters](https://github.com/jgm/pandocfilters)
 package.
 
-[ ] TODO: Add a second pandoc filter that makes code block parameters visible
-in the PDF.
-
 ## Prelude
 
 Just some standard Python imports.
@@ -34,8 +31,6 @@ logger = logging.getLogger(__name__)
 
 This is where we store files and fragments, and also a global count of all
 code blocks that we have created so far.
-
-[ ] TODO: Remove code block count.
 
 ```{file=moji.py}
 code_block = 1
@@ -141,6 +136,12 @@ moji.py Makefile: $(SOURCE)
 moji.pdf: $(SOURCE)
 	pandoc -o $@ $^
 ```
+
+## TODO
+
+- [ ] Add a second pandoc filter that makes code block parameters visible
+in the PDF.
+- [ ] Remove code block count.
 
 ## Further Reading
 
