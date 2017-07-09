@@ -32,23 +32,35 @@ def action(key, value, format, meta):
         if 'file' in keyvals:
             path = keyvals['file']
             logger.debug("Appending to %s", path)
-            files[path].append(code.strip())
+            files[path].append(code)
         elif 'fragment' in keyvals:
             fragment = keyvals['fragment']
             logger.debug("Adding fragment %s")
-            fragments[fragment] = (code.strip())
+            fragments[fragment] = code
+
+
+def replace_fragments(block):
+    """Replace a designated fragment with a stored fragment."""
+    def _iter():
+        for line in block.splitlines():
+            if line.startswith('##'):
+                fragment_name = line[2:]
+                logger.debug("Found fragment %s in %s", fragment_name, path)
+                fragment = fragments[fragment_name]
+                yield fragment
+            else:
+                yield line
+    return "\n".join(_iter())
 
 
 if __name__ == "__main__":
-##fragment
+    print("This will appear inside the __main__ if block")
     tree = json.loads(stdin.read())
     walk(tree, action, '', {})
     for fragment, content in fragments.items():
         for path, content in files.items():
-            for block in content:
-                for line in block.splitlines():
-                    if line.startswith('##'):
-                        logger.debug("Found a fragment in %s", path)
+            content = list(map(replace_fragments, content))
+            files[path] = content
 
     for path, content in files.items():
         with open(path, 'w') as fd:
