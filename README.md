@@ -23,7 +23,7 @@ import re
 These are used to match Moji instructions
 
 ```{.python file=moji.py}
-FRAGMENT_RE = re.compile(r"(?P<indentation>\s*)##(?P<fragment_name>\w+)")
+FRAGMENT_RE = re.compile(r"(?P<indentation>\s*)##\s+(?P<fragment_name>\w+)")
 ```
 
 ## Set Up Logging
@@ -77,7 +77,7 @@ def action(key, value, format, meta):
 This is the algorithm that replaces occurences of
 
 ```python
-##fragment_name
+## fragment_name
 ```
 
 with the correct fragment, like so
@@ -91,7 +91,7 @@ Furthermore, great care is taken to match the indent
 level at the position that contained the fragment reference. Therefore, if
 
 ```python
-    ##fragment_name
+    ## fragment_name
 ```
 
 is defined, it will be replaced with a fragment like so
@@ -129,7 +129,7 @@ Here we parse, process and output the JSON.
 
 ```{.python file=moji.py}
 if __name__ == "__main__":
-    ##fragment
+    ## fragment
     tree = json.loads(stdin.read())
     walk(tree, action, '', {})
     for fragment, content in fragments.items():

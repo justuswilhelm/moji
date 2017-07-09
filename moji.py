@@ -7,7 +7,7 @@ import logging
 import re
 
 
-FRAGMENT_RE = re.compile(r"(?P<indentation>\s*)##(?P<fragment_name>\w+)")
+FRAGMENT_RE = re.compile(r"(?P<indentation>\s*)##\s+(?P<fragment_name>\w+)")
 
 
 logging.basicConfig(level=logging.DEBUG)
