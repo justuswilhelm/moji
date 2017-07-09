@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 from pandocfilters import walk
-from logging import getLogger, basicConfig
 from sys import stdin
 import json
+import logging
 
 
-logger = getLogger(__name__)
-basicConfig(level='DEBUG')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 code_block = 1

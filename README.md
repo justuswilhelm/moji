@@ -1,6 +1,21 @@
-# Test
+# Moji
+
+Literate Programming Tool using Pandoc filters. The implementation is in
+Python 3 using the [pandocfilters](https://github.com/jgm/pandocfilters)
+package.
 
 ## Files
+
+First, we'll tell Moji which files to initialize.
+
+[ ] TODO: Since we add append content to files, we can leave this out in the
+future and use a defaultdict.
+
+If you want to see what's happening under the hood, the markdown contains extra
+classes and key-value pairs for code blocks.
+
+[ ] TODO: Add a second pandoc filter that makes code block parameters visible
+in the PDF.
 
 ```files
 Makefile
@@ -9,22 +24,32 @@ moji.py
 
 ## Prelude
 
+Just some standard Python imports.
+
 ```{file=moji.py}
 #!/usr/bin/env python3
 from pandocfilters import walk
-from logging import getLogger, basicConfig
 from sys import stdin
 import json
+import logging
 ```
 
 ## Set Up Logging
 
+I like to use logging a lot for debugging purposes, so I'm setting up a logger
+here.
+
 ```{file=moji.py}
-logger = getLogger(__name__)
-basicConfig(level='DEBUG')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 ```
 
 ## Some global vars
+
+This is where we store files and fragments, and also a global count of all
+code blocks that we have created so far.
+
+[ ] TODO: Remove code block count.
 
 ```{file=moji.py}
 code_block = 1
@@ -33,6 +58,8 @@ fragments = {}
 ```
 
 ## Filter Action
+
+This is the main action for Pandoc AST traversal.
 
 ```{file=moji.py}
 def action(key, value, format, meta):
@@ -62,6 +89,14 @@ def action(key, value, format, meta):
 
 ## Fragment Replacement
 
+This is the algorithm that replaces occurences of
+
+```
+##fragment name
+```
+
+with the correct fragment.
+
 ```{file=moji.py}
 def replace_fragments(block):
     """Replace a designated fragment with a stored fragment."""
@@ -78,6 +113,8 @@ def replace_fragments(block):
 ```
 
 ## Call Main Method
+
+Here we parse, process and output the JSON.
 
 ```{file=moji.py}
 if __name__ == "__main__":
@@ -97,12 +134,17 @@ if __name__ == "__main__":
 
 ## Fragment Example
 
+Here we test fragment replacement. This will later show up in the `moji.py`
+file.
+
 ```{fragment=fragment}
     print("This will appear inside the __main__ if block")
 ```
 
 
 ## Makefile
+
+Finally, a makefile shall be created.
 
 ```{file=Makefile}
 SOURCE = README.md
@@ -118,3 +160,9 @@ moji.py Makefile: $(SOURCE)
 moji.pdf: $(SOURCE)
 	pandoc -o $@ $^
 ```
+
+## Further Reading
+
+- [pandocfilters](https://github.com/jgm/pandocfilters)
+- [Pandoc User Guide](https://github.com/jgm/pandocfilters)
+- [Wikipedia on Literate Programming](https://en.wikipedia.org/wiki/Literate_programming)
