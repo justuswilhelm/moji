@@ -105,11 +105,16 @@ if __name__ == "__main__":
 ## Makefile
 
 ```{file=Makefile}
+SOURCE = README.md
+TARGET = moji.py moji.pdf
+
 .PHONY: moji.py Makefile
 
-moji.py Makefile: moji.md
+all: $(TARGET)
+
+moji.py Makefile: $(SOURCE)
 	pandoc $^ --to=json --preserve-tabs | ./moji.py
 
-moji.pdf: moji.md
+moji.pdf: $(SOURCE)
 	pandoc -o $@ $^
 ```
